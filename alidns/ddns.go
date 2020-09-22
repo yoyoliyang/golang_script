@@ -17,9 +17,11 @@ func main() {
 	if accessKeyID != "" && accessSecret != "" && domainName != "" {
 
 		filename := "ip.txt"
-		file, err := os.Open(filename)
+
+		file, err := os.OpenFile(filename, os.O_CREATE, 0644)
 		if err != nil {
-			file, _ = os.Create(filename)
+			fmt.Fprintln(os.Stdout, "Failed to open file: \n", file.Name())
+			return
 		}
 		defer file.Close()
 
@@ -29,7 +31,11 @@ func main() {
 			return
 		}
 
-		ip, _ := getpubip.GetIP()
+		ip, err := getpubip.GetIP()
+		if err != nil {
+			fmt.Fprintln(os.Stdout, "Failed to get public IP")
+			return
+		}
 
 		if ip.String() == string(oldIP) {
 			fmt.Fprintf(os.Stdout, "nochange %v", ip.String())
@@ -37,7 +43,11 @@ func main() {
 		}
 
 		fmt.Fprintf(os.Stdout, "current ip: %v\n", ip.String())
-		defer ioutil.WriteFile(filename, []byte(ip.String()), 0644)
+		err = ioutil.WriteFile(filename, []byte(ip.String()), 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stdout, "Failed to write IP address, %v\n", err)
+			return
+		}
 
 		client, err := alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyID, accessSecret)
 
