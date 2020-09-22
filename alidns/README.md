@@ -1,1 +1,4 @@
-use ```. $HOME/.profile; $HOME/aliyunddns
+use 
+```shell
+. $HOME/.profile; $HOME/aliyunddns
+```
