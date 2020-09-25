@@ -19,12 +19,12 @@ func main() {
 	h := *host + ":" + *port
 
 	http.HandleFunc("/", handle)
-	fmt.Println("starting http server:", h)
+	fmt.Println("starting http server:", h, *path)
 	log.Fatal(http.ListenAndServe(h, nil))
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
 	hf := http.FileServer(http.Dir(*path))
 	hf.ServeHTTP(w, r)
-	log.Println(r.Host, r.URL.Path)
+	log.Println(r.RemoteAddr, r.URL.Path)
 }
