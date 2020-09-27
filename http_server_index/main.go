@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 )
 
 var port = flag.String("p", "8008", "port")
@@ -40,5 +41,34 @@ func main() {
 func handle(w http.ResponseWriter, r *http.Request) {
 	hf := http.FileServer(http.Dir(path))
 	hf.ServeHTTP(w, r)
+	tmpl, err := template.New("index").Parse(js)
+	if err != nil {
+		fmt.Fprintln(w, err)
+	}
+	err = tmpl.Execute(w, r)
+	if err != nil {
+		fmt.Fprintln(w, err)
+	}
+	// fmt.Fprintln(w, js)
+
 	log.Println(r.RemoteAddr, r.URL.Path)
 }
+
+var js = `
+<style type="text/css">
+body {
+	color: #26b72b;
+	margin-top: 10px;
+}
+ 
+pre {
+	font-size: 20px;
+	margin-left: 20px;
+}
+</style>
+
+<script>
+let pre = document.getElementsByTagName("pre")
+pre[0].innerHTML = "<h3>Index of {{.URL.Path}}</h3>" + "<hr>" + pre[0].innerHTML
+</script>
+`
