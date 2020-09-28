@@ -18,7 +18,7 @@ func main() {
 
 		filename := "ip.txt"
 
-		file, err := os.OpenFile(filename, os.O_CREATE, 0644)
+		file, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR, 0644)
 		if err != nil {
 			fmt.Fprintln(os.Stdout, "Failed to open file: \n", file.Name())
 			return
@@ -27,7 +27,7 @@ func main() {
 
 		oldIP, err := ioutil.ReadAll(file)
 		if err != nil {
-			fmt.Fprintf(os.Stdout, "error for reading ip file %v", err)
+			fmt.Fprintf(os.Stdout, "error for reading ip file %v\n", err)
 			return
 		}
 
@@ -43,7 +43,13 @@ func main() {
 		}
 
 		fmt.Fprintf(os.Stdout, "current ip: %v\n", ip.String())
-		err = ioutil.WriteFile(filename, []byte(ip.String()), 0644)
+
+		// Truncate用法 https://golang.org/pkg/os/#File.Truncate
+		if err = file.Truncate(0); err != nil {
+			fmt.Fprintf(os.Stdout, "Failed to clear ip file %v", err)
+			return
+		}
+		_, err = file.WriteString(ip.String())
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "Failed to write IP address, %v\n", err)
 			return
