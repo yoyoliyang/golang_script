@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -22,12 +21,8 @@ func main() {
 		return
 	}
 
-	buf := &bytes.Buffer{}
 	msg := fmt.Sprintf("{\"value1\":%q}", os.Args[1])
-	_, err := buf.WriteString(msg)
-	if err != nil && err == io.EOF {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	buf := bytes.NewBufferString(msg)
 	fmt.Println(buf.String())
 
 	if eventName != "" && key != "" {
