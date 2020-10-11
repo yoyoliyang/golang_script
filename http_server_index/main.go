@@ -1,5 +1,6 @@
 // very simple http server for directory
-// 一个非常简单的http方式目录访问脚本
+// 一个非常简单的http方式目录访问脚本，使用了内置的FileServer方式来索引目录
+// 配合模板，使用javascript来修改主题和标题名称
 package main
 
 import (
