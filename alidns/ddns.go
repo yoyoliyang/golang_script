@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
@@ -12,6 +13,30 @@ import (
 var accessKeyID = os.Getenv("ALIYUN_ACCESSKEYID")
 var accessSecret = os.Getenv("ALIYUN_ACCESSSECRET")
 var domainName = os.Getenv("DOMAINNAME")
+var domainid = os.Getenv("DOMAINID")
+
+// 更新domain记录
+func updateDC(ip net.IP) {
+
+	client, err := alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyID, accessSecret)
+	if err != nil {
+		fmt.Fprintln(os.Stdout, err)
+	}
+
+	request := alidns.CreateUpdateDomainRecordRequest()
+	request.Scheme = "https"
+
+	request.Value = ip.String()
+	request.Type = "A"
+	request.RR = "@"
+	request.RecordId = domainid
+
+	response, err := client.UpdateDomainRecord(request)
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "error for UpdateDomainRecord: %v", err)
+	}
+	fmt.Fprintf(os.Stdout, "response is %#v\n", response)
+}
 
 func main() {
 	if accessKeyID != "" && accessSecret != "" && domainName != "" {
@@ -37,6 +62,7 @@ func main() {
 			return
 		}
 
+		// 存在相同的ip，不去执行操作
 		if ip.String() == string(oldIP) {
 			fmt.Fprintf(os.Stdout, "nochange %v", ip.String())
 			return
@@ -55,21 +81,8 @@ func main() {
 			return
 		}
 
-		client, err := alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyID, accessSecret)
-
-		request := alidns.CreateAddDomainRecordRequest()
-		request.Scheme = "https"
-
-		request.Value = ip.String()
-		request.Type = "A"
-		request.RR = "@"
-		request.DomainName = domainName
-
-		response, err := client.AddDomainRecord(request)
-		if err != nil {
-			fmt.Fprintf(os.Stdout, "error for AddDomainRecord: %v", err)
-		}
-		fmt.Fprintf(os.Stdout, "response is %#v\n", response)
+		// 解析操作处理
+		updateDC(ip)
 
 	} else {
 		fmt.Fprintln(os.Stdout, "ERR: Problems with Environment Variables")
