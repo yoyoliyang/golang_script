@@ -69,7 +69,7 @@ func (r *request) describe() (b []byte, err error) {
 	req := alidns.CreateDescribeDomainRecordsRequest()
 
 	req.Scheme = r.Scheme
-	req.DomainName = domainName
+	req.DomainName = r.DomainName
 
 	resp, err := r.Client.DescribeDomainRecords(req)
 	if err != nil {
