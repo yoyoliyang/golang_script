@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"text/template"
 )
 
@@ -39,6 +40,17 @@ func main() {
 	log.Fatal(http.ListenAndServe(h, nil))
 }
 
+func getUptime() (string, error) {
+	uptime := exec.Command("uptime", "-p")
+	for {
+		res, err := uptime.Output()
+		if err != nil {
+			return "", err
+		}
+	}
+	return string(res), nil
+}
+
 func handle(w http.ResponseWriter, r *http.Request) {
 	hf := http.FileServer(http.Dir(path))
 	hf.ServeHTTP(w, r)
@@ -51,6 +63,11 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, err)
 	}
 	// fmt.Fprintln(w, js)
+	uptime, err := getUptime()
+	if err != nil {
+		fmt.Fprintln(w, err)
+	}
+	fmt.Fprintln(w, uptime)
 
 	log.Println(r.RemoteAddr, r.URL.Path)
 }
