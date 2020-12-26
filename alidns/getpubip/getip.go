@@ -2,6 +2,7 @@ package getpubip
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"net"
 	"net/http"
@@ -11,7 +12,12 @@ import (
 
 // GetIP 获取公网ip模块
 func GetIP() (ip net.IP, err error) {
-	url := "http://2021.ip138.com"
+	var url string
+	flag.StringVar(&url, "m", "", "ip138.com mirror")
+	flag.Parse()
+	if url == "" {
+		url = "http://2021.ip138.com"
+	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
