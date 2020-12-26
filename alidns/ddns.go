@@ -6,8 +6,8 @@ import (
 	"net"
 	"os"
 
+	"alidns/getpubip"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
-	"github.com/yoyoliyang/gomod/getpubip"
 )
 
 var accessKeyID = os.Getenv("ALIYUN_ACCESSKEYID")
